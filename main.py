@@ -1,4 +1,5 @@
 import json
+from time import sleep
 from pathlib import Path
 from itertools import cycle
 from traceback import print_exc
@@ -13,7 +14,6 @@ class NaukriResumeCycler:
     def __init__(self) -> None:
 
         #-Base objects-#
-        self.driver = Driver()
         self.script_dir = Path(__file__).parent
         self.env_file = dotenv_values(self.script_dir / ".env")
 
@@ -22,7 +22,7 @@ class NaukriResumeCycler:
             self.config = json.load(file)
 
         #-Iterator to yield the resume filepaths-#
-        self.resume_generator = cycle(self.confg["resume_files"])
+        self.resume_generator = cycle(self.config["resume_files"])
 
 
     #-Function to initialize the driver and log in to the Naukri account-#
@@ -53,16 +53,30 @@ class NaukriResumeCycler:
         #-Try block to handle exceptions-#
         try:
 
-            #-Navigating to the profile page-#
-            self.driver.google_get(self.config["profile_page"])
+            #-Creating an infinite loop-#
+            while True:
 
-            #-If the user is logged out, running the login function-#
-            print(self.driver.title)
-            if self.driver.title != "Profile | Mynaukri":
+                #-Initializing the driver object-#
+                self.driver = Driver()
+
+                #-Logging in to the Naukri account-#
                 self.__login()
 
-            #-Navigating again to the profile page-#
-            self.driver.google_get(self.config["profile_page"])
+                #-Navigating to the profile page-#
+                self.driver.google_get(self.config["profile_page"], wait = Wait.SHORT)
+
+                #-Finding the upload resume button and uploading the next resume in cycle-#
+                file_input = self.driver.get_element_containing_text("attachCV", type = "input")
+                file_input.upload_file(self.resume_generator.__next__())
+
+                #-Adding some interval to upload and update the resume-#
+                self.driver.sleep(Wait.SHORT)
+
+                #-Closing the driver to avoid any potential memory issues-#
+                self.driver.close()
+
+                #-Adding an interval in seconds-#
+                sleep(self.config["interval"])
 
         #-Printing the exception-#
         except:
@@ -73,5 +87,6 @@ class NaukriResumeCycler:
 if __name__ == "__main__":
 
     #-Creating the class object-#
-    nrr = NaukriResumeCycler()
+    nrc = NaukriResumeCycler()
+    nrc.cycle_resumes()
 
