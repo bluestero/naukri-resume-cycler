@@ -43,7 +43,7 @@ class NaukriResumeCycler:
         login_button = self.driver.get_element_containing_text("waves-effect waves-light btn-large btn-block btn-bold blue-btn textTransform")
         login_button.click()
 
-        #-Waiting for the page to load first-#
+        #-Waiting for the homepage redirect-#
         self.driver.sleep(3)
 
 
@@ -54,7 +54,15 @@ class NaukriResumeCycler:
         try:
 
             #-Navigating to the profile page-#
-            self.driver.google_get("")
+            self.driver.google_get(self.config["profile_page"])
+
+            #-If the user is logged out, running the login function-#
+            print(self.driver.title)
+            if self.driver.title != "Profile | Mynaukri":
+                self.__login()
+
+            #-Navigating again to the profile page-#
+            self.driver.google_get(self.config["profile_page"])
 
         #-Printing the exception-#
         except:
