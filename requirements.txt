@@ -1,0 +1,14 @@
+botasaurus_driver==4.0.66
+botasaurus_proxy_authentication==1.0.16
+certifi==2024.12.14
+charset-normalizer==3.4.1
+Deprecated==1.2.15
+idna==3.10
+javascript_fixes==1.1.29
+psutil==6.1.1
+python-dotenv==1.0.1
+PyVirtualDisplay==3.0
+requests==2.32.3
+urllib3==2.3.0
+websocket-client==1.8.0
+wrapt==1.17.0
