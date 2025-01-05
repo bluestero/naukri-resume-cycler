@@ -25,6 +25,9 @@ class NaukriResumeCycler:
         self.resume_generator = cycle(self.config["resume_files"])
 
 
+    #-Function to create logger-#
+
+
     #-Function to initialize the driver and log in to the Naukri account-#
     def __login(self) -> None:
 
@@ -89,4 +92,3 @@ if __name__ == "__main__":
     #-Creating the class object-#
     nrc = NaukriResumeCycler()
     nrc.cycle_resumes()
-
