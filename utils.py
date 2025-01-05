@@ -5,7 +5,7 @@ from pathlib import Path
 from datetime import datetime, timedelta
 
 
-class LogManager():
+class LogManager(logging.Logger):
 
     #-Init function for the base initialization-#
     def __init__(
@@ -13,7 +13,7 @@ class LogManager():
             log_filename: str,
             debug: bool = False,
             log_filepath: str = None,
-            main_dir: str = os.getcwd(),
+            main_dir: str = Path.cwd(),
             log_formatter: str = "%(asctime)s - %(levelname)s : %(message)s"):
         """
         Creates and returns a logger object.\n
@@ -40,7 +40,7 @@ class LogManager():
         """
 
         #-Creating the logger object using given information-#
-        self.logger = logging.getLogger(log_filename)
+        self.logger: logging.Logger = logging.getLogger(log_filename)
 
         #-Closing any already opened handlers-#
         for handler in self.logger.handlers:
@@ -49,6 +49,9 @@ class LogManager():
         #-Setting the log_filepath if not given-#
         if not log_filepath:
             log_filepath = main_dir / f"{log_filename}.log"
+
+        #-Storing the log_filepath as class object-#
+        self.log_filepath = Path(log_filepath)
 
         #-Adding the file_handler with the relative path main_dir/main.log-#
         file_handler = logging.FileHandler(log_filepath, mode = "w")
@@ -98,8 +101,7 @@ class LogManager():
 
         #-Creating archive filepath if not given-#
         if not archive_filepath:
-            log_name = os.path.basename(log_filepath)[:-4]
-            archive_filepath = os.path.join(os.path.dirname(log_filepath), f"{log_name}_archive.log")
+            archive_filepath = self.log_filepath.with_stem(f"{self.log_filepath.stem}_archive")
 
         #-Creating archive.log if does not exist-#
         if not os.path.exists(archive_filepath):
@@ -118,7 +120,7 @@ class LogManager():
 
             #-If log_rotation is given, adding condition to filter out outdated entries-#
             if log_rotation:
-                is_valid = lambda x: x.strip() != '' and is_recent(re_date.findall(x)[-1], log_rotation)
+                is_valid = lambda x: x.strip() != '' and self.__is_recent(re_date.findall(x)[-1], log_rotation)
 
             #-Reading the data and spltting it by the separator-#
             lines = archive_file.read().strip().split(double_line_separator)
@@ -135,7 +137,7 @@ class LogManager():
             counter = int(log_entries[-1].split()[-1]) + 1 if any(lines) else 1
 
             #-Open and read the csv2sql.log file-#
-            with open(log_filepath, 'r') as log:
+            with open(self.log_filepath, 'r') as log:
                 log_data = log.read()
 
             #-Storing the new log data, timestamp, and run counter to the archive.log file-#
@@ -145,4 +147,9 @@ class LogManager():
             archive_file.write(f"\n{double_line_separator}\n\n".join(log_entries))
 
 
-logs_manager = LogManager()
+    #-Function to use the logger object instead of the class-#
+    def __getattr__(self, name):
+        """
+        Delegate attribute access to the logger object if the attribute isn't found in the class.
+        """
+        return getattr(self.logger, name)
