@@ -1,6 +1,6 @@
 {
     "interval": 3600,
-    "resume_files": ["Resume 1.pdf", "Resume 2.pdf"],
+    "resume_files": [],
     "login_page": "https://www.naukri.com/nlogin/login",
     "profile_page": "https://www.naukri.com/mnjuser/profile"
   }

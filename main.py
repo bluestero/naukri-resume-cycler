@@ -1,3 +1,4 @@
+import sys
 import json
 from time import sleep
 from pathlib import Path
@@ -5,6 +6,10 @@ from itertools import cycle
 from traceback import print_exc
 from dotenv import dotenv_values
 from botasaurus_driver import Wait, Driver
+
+#-Custom imports-#
+sys.path.insert(0, Path(__file__).parent)
+import utils
 
 
 #-Main class object-#
@@ -24,8 +29,8 @@ class NaukriResumeCycler:
         #-Iterator to yield the resume filepaths-#
         self.resume_generator = cycle(self.config["resume_files"])
 
-
-    #-Function to create logger-#
+        #-Creating the logger object-#
+        self.logger = utils.LogManager("nrc")
 
 
     #-Function to initialize the driver and log in to the Naukri account-#
