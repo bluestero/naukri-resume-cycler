@@ -12,6 +12,12 @@ sys.path.insert(0, Path(__file__).parent)
 import utils
 
 
+#-Class object for Invalid Login exception-#
+class InvalidLoginError(Exception):
+    def __init__(self, msg):
+        super().__init__(msg)
+
+
 #-Main class object-#
 class NaukriResumeCycler:
 
@@ -58,6 +64,13 @@ class NaukriResumeCycler:
         #-Waiting for the homepage redirect-#
         self.logger.debug("Waiting for the homepage reload.")
         self.driver.sleep(3)
+
+        #-Login error element-#
+        login_failed_span = self.driver.get_element_containing_text("col s12 commonErrorMsg")
+
+        #-Raising error if login failed element is found or title contains login-#
+        if "login" in self.driver.title.lower() or login_failed_span:
+            raise InvalidLoginError("Login failed. Please check your credentials.")
 
 
     #-Function to update the resume in the profile page-#
