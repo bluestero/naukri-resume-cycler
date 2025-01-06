@@ -30,7 +30,7 @@ class NaukriResumeCycler:
         self.resume_generator = cycle(self.config["resume_files"])
 
         #-Creating the logger object-#
-        self.logger = utils.LogManager("nrc")
+        self.logger = utils.LogManager("nrc", debug = self.config["debug"])
 
 
     #-Function to initialize the driver and log in to the Naukri account-#
