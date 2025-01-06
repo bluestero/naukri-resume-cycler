@@ -61,8 +61,33 @@ class NaukriResumeCycler:
         #-Try block to handle exceptions-#
         try:
 
+            #-Counter for the iterations-#
+            counter = 1
+
+            #-Logging the start-#
+            self.logger.info("Script started.\n")
+
+            #-Logging the available resume-#
+            self.logger.info(f"Provided resumes:")
+
+            #-Iterating the resumes and logging them-#
+            for index, resume in enumerate(self.config["resume_files"]):
+
+                #-Logging with a breakline if its the last iteration-#
+                if index + 1 == len(self.config["resume_files"]):
+                    self.logger.info(f"- {resume}\n")
+
+                #-Else logging without any breaklines-#
+                else:
+                    self.logger.info(f"- {resume}")
+
             #-Creating an infinite loop-#
             while True:
+
+                #-Getting the next resume and logging it-#
+                current_resume = self.resume_generator.__next__()
+                self.logger.info(f"Iteration number: {counter}.")
+                self.logger.info(f"Current resume: {current_resume}.")
 
                 #-Initializing the driver object-#
                 self.driver = Driver()
@@ -75,7 +100,7 @@ class NaukriResumeCycler:
 
                 #-Finding the upload resume button and uploading the next resume in cycle-#
                 file_input = self.driver.get_element_containing_text("attachCV", type = "input")
-                file_input.upload_file(self.resume_generator.__next__())
+                file_input.upload_file()
 
                 #-Adding some interval to upload and update the resume-#
                 self.driver.sleep(Wait.SHORT)
@@ -88,7 +113,12 @@ class NaukriResumeCycler:
 
         #-Printing the exception-#
         except:
-            print_exc()
+            self.logger.error("", exc_info = True)
+
+        #-Showing script completed and archiving the logs-#
+        finally:
+            self.logger.info("Script run completed.")
+            self.logger.archive_logs(log_rotation = 30)
 
 
 #-Safeguarding the code from import-#
