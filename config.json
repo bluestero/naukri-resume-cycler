@@ -1,4 +1,5 @@
 {
+    "debug": true,
     "interval": 3600,
     "resume_files": [],
     "login_page": "https://www.naukri.com/nlogin/login",

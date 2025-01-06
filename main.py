@@ -37,22 +37,44 @@ class NaukriResumeCycler:
     def __login(self) -> None:
 
         #-Navigating to the login page-#
+        self.logger.debug("Navigating to the login page.")
         self.driver.google_get(self.config["login_page"], wait = Wait.SHORT)
 
         #-Finding and filling the username field-#
+        self.logger.debug("Finding the email input.")
         email_input = self.driver.get_element_containing_text("usernameField")
         email_input.type(self.env_file.get("USERNAME"))
 
         #-Finding and filling the password field-#
+        self.logger.debug("Finding the password input.")
         password_input = self.driver.get_element_containing_text("passwordField")
         password_input.type(self.env_file.get("PASSWORD"))
 
         #-Finding and clicking the submit button-#
+        self.logger.debug("Finding the login button.")
         login_button = self.driver.get_element_containing_text("waves-effect waves-light btn-large btn-block btn-bold blue-btn textTransform")
         login_button.click()
 
         #-Waiting for the homepage redirect-#
+        self.logger.debug("Waiting for the homepage reload.")
         self.driver.sleep(3)
+
+
+    #-Function to update the resume in the profile page-#
+    def __update_resume(self) -> None:
+
+        #-Navigating to the profile page-#
+        self.logger.debug("Navigating to the profile page.")
+        self.driver.google_get(self.config["profile_page"], wait = Wait.SHORT)
+
+        #-Finding the upload resume button and uploading the next resume in cycle-#
+        self.logger.debug("Finding the upload resume button.")
+        file_input = self.driver.get_element_containing_text("attachCV", type = "input")
+        file_input.upload_file(self.current_resume)
+
+        #-Adding some interval to upload and update the resume-#
+        self.logger.debug("Waiting for the resume to be uploaded and updated.")
+        self.driver.sleep(Wait.SHORT)
 
 
     #-Function to cycle and update the resume in the profile page-#
@@ -85,31 +107,33 @@ class NaukriResumeCycler:
             while True:
 
                 #-Getting the next resume and logging it-#
-                current_resume = self.resume_generator.__next__()
+                self.current_resume = self.resume_generator.__next__()
                 self.logger.info(f"Iteration number: {counter}.")
-                self.logger.info(f"Current resume: {current_resume}.")
+                self.logger.info(f"Current resume: {self.current_resume}.\n")
 
                 #-Initializing the driver object-#
                 self.driver = Driver()
 
                 #-Logging in to the Naukri account-#
+                self.logger.info("Logging in to the account.")
                 self.__login()
+                self.logger.info("Login successful.\n")
 
-                #-Navigating to the profile page-#
-                self.driver.google_get(self.config["profile_page"], wait = Wait.SHORT)
-
-                #-Finding the upload resume button and uploading the next resume in cycle-#
-                file_input = self.driver.get_element_containing_text("attachCV", type = "input")
-                file_input.upload_file()
-
-                #-Adding some interval to upload and update the resume-#
-                self.driver.sleep(Wait.SHORT)
+                #-Updating the resume through in the profile page-#
+                self.logger.info("Updating the resume in the profile page.")
+                self.__update_resume()
+                self.logger.info("Resume updated successfully.\n")
 
                 #-Closing the driver to avoid any potential memory issues-#
+                self.logger.debug("Closing the driver.")
                 self.driver.close()
 
                 #-Adding an interval in seconds-#
+                self.logger.info(f"Sleeping for {self.config["interval"]} seconds.\n\n{'-' * 120}\n")
                 sleep(self.config["interval"])
+
+                #-Incrementing the counter-#
+                counter = counter + 1
 
         #-Printing the exception-#
         except:
